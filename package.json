@@ -9,9 +9,16 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@base-ui-components/react": "1.0.0-rc.0",
+    "@paper-design/shaders-react": "^0.0.71",
+    "@rive-app/react-webgl2": "^4.26.2",
+    "class-variance-authority": "^0.7.1",
+    "framer-motion": "^12.32.0",
+    "lottie-react": "^2.4.1",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "resend": "^6.9.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
