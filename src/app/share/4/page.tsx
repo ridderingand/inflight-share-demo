@@ -435,20 +435,12 @@ function FeedbackGuide({ isExpanded }: { isExpanded: boolean }) {
 
 function SharePreview({
 	isVisible,
-	email,
-	setEmail,
-	onSubmit,
-	status,
 	headline,
 	isV2,
 	isFullscreen,
 	onToggleFullscreen,
 }: {
 	isVisible: boolean;
-	email: string;
-	setEmail: (email: string) => void;
-	onSubmit: (e: React.FormEvent) => void;
-	status: "idle" | "loading" | "success" | "error";
 	headline: "default" | "v2";
 	isV2: boolean;
 	isFullscreen: boolean;
@@ -613,48 +605,6 @@ function SharePreview({
 						Inflight is the fastest and simplest way to collaborate in code.
 					</motion.p>
 
-					{/* Email input preview */}
-					<motion.div
-						initial={{ opacity: 0, y: 10 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.9, duration: 0.5 }}
-						className="w-full max-w-[320px] mt-6"
-					>
-						{status === "success" ? (
-							<div className="flex items-center justify-center h-[44px] rounded-full bg-white/[0.06] border border-white/10 text-neutral-300 text-[13px]">
-								You&apos;re on the list!
-							</div>
-						) : (
-							<form onSubmit={onSubmit} className="relative">
-								<input
-									type="email"
-									required
-									placeholder="your@email.com"
-									value={email}
-									onChange={(e) => setEmail(e.target.value)}
-									className="w-full h-[44px] pl-5 pr-14 rounded-full bg-white/[0.06] backdrop-blur-xl text-white text-[14px] placeholder:text-neutral-500 outline-none transition-all shadow-[0_0_0_0.5px_rgba(255,255,255,0.10),inset_0_1px_0_0_rgba(255,255,255,0.05)] focus:shadow-[0_0_0_0.5px_rgba(255,255,255,0.20),inset_0_1px_0_0_rgba(255,255,255,0.08)]"
-								/>
-								<button
-									type="submit"
-									disabled={status === "loading"}
-									className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-neutral-100 transition-all disabled:opacity-50"
-								>
-									<svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-										<path d="M3 8.5L6.5 12L13 4" stroke="#15161C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-									</svg>
-								</button>
-							</form>
-						)}
-					</motion.div>
-
-					<motion.p
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 1.1, duration: 0.5 }}
-						className="text-[12px] text-neutral-500 mt-3"
-					>
-						Join 3,000+ designers and get early access
-					</motion.p>
 				</div>
 			</div>
 		</motion.div>
@@ -698,9 +648,6 @@ export default function SharePage() {
 	const [showPreview, setShowPreview] = useState(false);
 	const [previewHeadline, setPreviewHeadline] = useState<"default" | "v2">("default");
 	const [isV2, setIsV2] = useState(false);
-	const [email, setEmail] = useState("");
-	const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-	const [errorMessage, setErrorMessage] = useState("");
 	const [isFullscreen, setIsFullscreen] = useState(false);
 
 	const toggleFullscreen = useCallback(() => {
@@ -726,32 +673,6 @@ export default function SharePage() {
 			setPreviewHeadline("v2");
 			setIsV2(true);
 		}, 300);
-	};
-
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!email.trim()) return;
-
-		setStatus("loading");
-		setErrorMessage("");
-
-		try {
-			const res = await fetch("/api/share-waitlist", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ email: email.trim() }),
-			});
-
-			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.error || "Something went wrong");
-			}
-
-			setStatus("success");
-		} catch (err) {
-			setStatus("error");
-			setErrorMessage(err instanceof Error ? err.message : "Something went wrong");
-		}
 	};
 
 	return (
@@ -796,52 +717,6 @@ export default function SharePage() {
 					</span>
 				</motion.h1>
 
-				{/* Email signup form */}
-				<motion.div
-					className="w-full max-w-[480px] mt-10"
-					initial={{ opacity: 0, y: 10 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.5, duration: 0.5 }}
-				>
-					{status === "success" ? (
-						<div className="flex items-center justify-center h-[56px] rounded-full bg-white/5 border border-white/10 text-neutral-200 text-[16px]">
-							You&apos;re on the list. We&apos;ll be in touch.
-						</div>
-					) : (
-						<form onSubmit={handleSubmit} className="relative">
-							<input
-								type="email"
-								required
-								placeholder="your@email.com"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								className="w-full h-[56px] pl-6 pr-16 rounded-full bg-white/[0.06] backdrop-blur-xl text-white text-[16px] placeholder:text-neutral-500 outline-none transition-all shadow-[0_0_0_0.5px_rgba(255,255,255,0.10),inset_0_1px_0_0_rgba(255,255,255,0.05),0_1px_1px_-0.5px_rgba(0,0,0,0.16),0_3px_3px_-1.5px_rgba(0,0,0,0.16)] focus:shadow-[0_0_0_0.5px_rgba(255,255,255,0.20),inset_0_1px_0_0_rgba(255,255,255,0.08),0_1px_1px_-0.5px_rgba(0,0,0,0.16),0_3px_3px_-1.5px_rgba(0,0,0,0.16)]"
-							/>
-							<button
-								type="submit"
-								disabled={status === "loading"}
-								className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white flex items-center justify-center hover:bg-neutral-100 transition-all shadow-[0_0_0_0.5px_rgba(255,255,255,0.15),inset_0_1px_0_0_rgba(255,255,255,0.1),0_1px_1px_-0.5px_rgba(0,0,0,0.16)] hover:shadow-[0_0_0_0.5px_rgba(255,255,255,0.15),inset_0_1px_0_0_rgba(255,255,255,0.1),0_3px_3px_-1.5px_rgba(0,0,0,0.16)] disabled:opacity-50"
-							>
-								<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M3 8.5L6.5 12L13 4" stroke="#15161C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-								</svg>
-							</button>
-						</form>
-					)}
-					{status === "error" && (
-						<p className="text-red-400 text-[13px] mt-3 text-center">{errorMessage}</p>
-					)}
-				</motion.div>
-
-				<motion.p
-					className="text-[14px] sm:text-[16px] text-neutral-500 mt-4 mb-12 sm:mb-16"
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					transition={{ delay: 0.6, duration: 0.5 }}
-				>
-					Join 3,000+ designers and get early access
-				</motion.p>
-
 				{/* Side by side container */}
 				<div className="w-full max-w-[1500px] flex flex-col lg:flex-row gap-6 items-start">
 					{/* Terminal */}
@@ -861,10 +736,6 @@ export default function SharePage() {
 						{showPreview ? (
 							<SharePreview
 								isVisible={showPreview}
-								email={email}
-								setEmail={setEmail}
-								onSubmit={handleSubmit}
-								status={status}
 								headline={previewHeadline}
 								isV2={isV2}
 								isFullscreen={isFullscreen}
